@@ -1,12 +1,32 @@
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import '../../services/api_service.dart';
 import '../models/message_model.dart';
+import '../models/conversation_model.dart';
 
 /// Provider for API calls
 class ApiProvider {
   // Get API service instance
   final ApiService _api = Get.find<ApiService>();
+
+  /// Get conversations list
+  Future<ConversationsResponse> getConversations({
+    required String user,
+    String lastId = '',
+    int limit = 20,
+  }) async {
+    try {
+      final response = await _api.get(
+        '/v1/conversations',
+        queryParameters: {'user': user, 'last_id': lastId, 'limit': limit},
+      );
+
+      return ConversationsResponse.fromJson(response.data);
+    } catch (e) {
+      rethrow;
+    }
+  }
 
   /// Get chat messages
   Future<List<MessageModel>> getMessages({

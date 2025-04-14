@@ -77,13 +77,14 @@ class _ChatViewState extends State<ChatView> {
               () => ListView.builder(
                 controller: _sidebarScrollController,
                 padding: EdgeInsets.symmetric(horizontal: context.spacing),
-                itemCount: controller.chatHistory.length,
+                itemCount: controller.conversations.length,
                 itemBuilder: (context, index) {
-                  final chat = controller.chatHistory[index];
+                  final chat = controller.conversations[index];
                   return ChatHistoryItem(
-                    title: chat,
-                    isSelected: index == controller.selectedChatIndex.value,
-                    onTap: () => controller.selectChat(index),
+                    title: chat.name,
+                    isSelected:
+                        chat.id == controller.selectedConversationId.value,
+                    onTap: () => controller.selectConversation(chat.id),
                   );
                 },
               ),

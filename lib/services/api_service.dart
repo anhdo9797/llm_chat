@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import '../core/constants/app_constants.dart';
@@ -46,7 +47,22 @@ class ApiService extends GetxService {
     dio.RequestOptions options,
     dio.RequestInterceptorHandler handler,
   ) {
-    // TODO: Thêm auth token nếu cần
+    // Log request URL và method
+    log('REQUEST [${options.method}] ${options.uri}');
+
+    // Log request headers
+    log('Headers: ${options.headers}');
+
+    // Log request data nếu có
+    if (options.data != null) {
+      log('Request Data: ${options.data}');
+    }
+
+    // Log query parameters nếu có
+    if (options.queryParameters.isNotEmpty) {
+      log('Query Params: ${options.queryParameters}');
+    }
+
     handler.next(options);
   }
 
@@ -55,12 +71,28 @@ class ApiService extends GetxService {
     dio.Response response,
     dio.ResponseInterceptorHandler handler,
   ) {
+    // Log response code và URL
+    log('RESPONSE [${response.statusCode}] ${response.requestOptions.uri}');
+
+    // Log response data
+    if (response.data != null) {
+      log('Response Data: ${response.data}');
+    }
+
     handler.next(response);
   }
 
   // Error interceptor
   void _onError(dio.DioException err, dio.ErrorInterceptorHandler handler) {
-    // TODO: Xử lý error chung
+    // Log error message và URL
+    log('ERROR [${err.response?.statusCode}] ${err.requestOptions.uri}');
+    log('Error Message: ${err.message}');
+
+    // Log error response nếu có
+    if (err.response?.data != null) {
+      log('Error Response: ${err.response?.data}');
+    }
+
     handler.next(err);
   }
 

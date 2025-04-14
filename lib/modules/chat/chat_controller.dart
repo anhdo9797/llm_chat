@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/controllers/base_controller.dart';
+import '../../data/models/conversation_model.dart';
 import '../../data/repositories/chat_repository.dart';
 import '../../services/storage_service.dart';
 
@@ -30,14 +31,13 @@ class ChatController extends BaseController {
       currentUser.value = savedUser;
     }
   }
-  final chatHistory =
-      <String>[
-        'AI Chat Tool Ethics',
-        'AI Chat Tool Impact Writing',
-        'New chat',
-      ].obs;
+  // Quản lý conversations
+  final conversations = <ConversationModel>[].obs;
+  final selectedConversationId = RxString('');
 
-  final selectedChatIndex = 0.obs;
+  // Lưu last_id để phân trang
+  String? lastConversationId;
+  static const int conversationsLimit = 20;
 
   final messages = <String>[].obs;
 
@@ -47,6 +47,38 @@ class ChatController extends BaseController {
   void onInit() {
     log('ChatController initialized');
     super.onInit();
+    // Load conversations khi khởi tạo
+    loadConversations();
+  }
+
+  // State quản lý phân trang
+  bool hasMoreConversations = false;
+
+  /// Load danh sách conversations
+  Future<void> loadConversations() async {
+    try {
+      if (currentUser.value.isEmpty) return;
+
+      final (list, hasMore) = await _chatRepository.getConversations(
+        user: currentUser.value,
+        lastId: lastConversationId ?? '',
+        limit: conversationsLimit,
+      );
+
+      if (list.isNotEmpty) {
+        conversations.value = list;
+        lastConversationId = list.last.id;
+        hasMoreConversations = hasMore;
+      }
+    } catch (e) {
+      showError('Không thể tải conversations: ${e.toString()}');
+    }
+  }
+
+  /// Load thêm conversations cũ hơn
+  Future<void> loadMoreConversations() async {
+    if (!hasMoreConversations || lastConversationId == null) return;
+    await loadConversations();
   }
 
   /// Toggle theme mode
@@ -99,19 +131,16 @@ class ChatController extends BaseController {
   /// Create new chat
   void newChat() {
     messages.clear();
-    selectedChatIndex.value = 0;
-    chatHistory.insert(0, 'New chat');
+    selectedConversationId.value = '';
+    currentConversationId = '';
   }
 
-  void selectChat(int index) {
-    selectedChatIndex.value = index;
-  }
-
-  void clearConversations() {
-    chatHistory.clear();
+  /// Select conversation
+  void selectConversation(String id) {
+    selectedConversationId.value = id;
+    currentConversationId = id;
     messages.clear();
-    chatHistory.add('New chat');
-    selectedChatIndex.value = 0;
+    // TODO: Load messages của conversation này
   }
 
   void logout() {

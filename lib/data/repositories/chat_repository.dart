@@ -1,4 +1,5 @@
 import '../models/message_model.dart';
+import '../models/conversation_model.dart';
 import '../providers/api_provider.dart';
 
 /// Repository for chat functionality
@@ -7,6 +8,29 @@ class ChatRepository {
 
   ChatRepository({required ApiProvider apiProvider})
     : _apiProvider = apiProvider;
+
+  /// Get conversations list
+  ///
+  /// [user]: ID người dùng
+  /// [lastId]: ID của conversation cuối cùng để phân trang
+  /// [limit]: Số lượng conversations trả về
+  /// Returns tuple (conversations, hasMore)
+  Future<(List<ConversationModel>, bool)> getConversations({
+    required String user,
+    String lastId = '',
+    int limit = 20,
+  }) async {
+    try {
+      final response = await _apiProvider.getConversations(
+        user: user,
+        lastId: lastId,
+        limit: limit,
+      );
+      return (response.data, response.hasMore);
+    } catch (e) {
+      rethrow;
+    }
+  }
 
   /// Get paginated messages
   ///
