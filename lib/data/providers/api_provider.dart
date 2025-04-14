@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../services/api_service.dart';
 import '../models/message_model.dart';
 import '../models/conversation_model.dart';
+import '../models/message_history_model.dart';
 
 /// Provider for API calls
 class ApiProvider {
@@ -28,20 +29,18 @@ class ApiProvider {
     }
   }
 
-  /// Get chat messages
-  Future<List<MessageModel>> getMessages({
-    required int page,
-    required int limit,
+  /// Get message history của conversation
+  Future<MessageHistoryResponse> getMessageHistory({
+    required String user,
+    required String conversationId,
   }) async {
     try {
       final response = await _api.get(
-        '/messages',
-        queryParameters: {'page': page, 'limit': limit},
+        '/v1/messages',
+        queryParameters: {'user': user, 'conversation_id': conversationId},
       );
 
-      return (response.data as List)
-          .map((json) => MessageModel.fromJson(json as Map<String, dynamic>))
-          .toList();
+      return MessageHistoryResponse.fromJson(response.data);
     } catch (e) {
       rethrow;
     }

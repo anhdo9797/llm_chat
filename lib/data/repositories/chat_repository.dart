@@ -1,5 +1,6 @@
 import '../models/message_model.dart';
 import '../models/conversation_model.dart';
+import '../models/message_history_model.dart';
 import '../providers/api_provider.dart';
 
 /// Repository for chat functionality
@@ -32,19 +33,22 @@ class ChatRepository {
     }
   }
 
-  /// Get paginated messages
-  ///
-  /// [page]: Page number starting from 1
-  /// [limit]: Number of items per page
-  /// Returns a list of messages ordered by timestamp
-  Future<List<MessageModel>> getMessages({int page = 1, int limit = 20}) async {
+  /// Get message history của conversation
+  Future<(List<MessageHistoryModel>, bool)> getMessageHistory({
+    required String user,
+    required String conversationId,
+  }) async {
     try {
-      final messages = await _apiProvider.getMessages(page: page, limit: limit);
+      final response = await _apiProvider.getMessageHistory(
+        user: user,
+        conversationId: conversationId,
+      );
 
       // Sort messages by timestamp
-      messages.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+      final messages = response.data;
+      messages.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-      return messages;
+      return (messages, response.hasMore);
     } catch (e) {
       rethrow;
     }

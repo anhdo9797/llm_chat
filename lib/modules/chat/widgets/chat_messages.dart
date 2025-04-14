@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import '../../../core/extensions/color_extension.dart';
+import '../../../data/models/message_history_model.dart';
 import 'type_loading_indicator.dart';
 
 class ChatMessages extends StatefulWidget {
-  final List<String> messages;
+  final List<MessageHistoryModel> messages;
   final VoidCallback onNewMessage;
 
   const ChatMessages({
@@ -65,7 +66,9 @@ class ChatMessagesState extends State<ChatMessages> {
       itemCount: widget.messages.length,
       itemBuilder: (context, index) {
         final message = widget.messages[index];
-        final isUser = message.startsWith('User:');
+        final isUser = message.query.isNotEmpty;
+        final content = isUser ? message.query : message.answer;
+        final isTyping = !isUser && content.isEmpty;
 
         return Align(
           alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
@@ -82,15 +85,12 @@ class ChatMessagesState extends State<ChatMessages> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child:
-                  isUser
-                      ? Text(
-                        message.substring(message.indexOf(':') + 2),
-                        style: textTheme.bodyLarge,
-                      )
-                      : message == "Bot: "
+                  isTyping
                       ? const TypeLoadingIndicator()
+                      : isUser
+                      ? Text(content, style: textTheme.bodyLarge)
                       : MarkdownBody(
-                        data: message.substring(message.indexOf(':') + 2),
+                        data: content,
                         styleSheet: MarkdownStyleSheet(
                           p: textTheme.bodyLarge,
                           code: textTheme.bodyLarge?.copyWith(

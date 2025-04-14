@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/controllers/base_controller.dart';
 import '../../data/models/conversation_model.dart';
+import '../../data/models/message_history_model.dart';
 import '../../data/repositories/chat_repository.dart';
 import '../../services/storage_service.dart';
 
@@ -35,11 +36,13 @@ class ChatController extends BaseController {
   final conversations = <ConversationModel>[].obs;
   final selectedConversationId = RxString('');
 
-  // Lưu last_id để phân trang
+  // Lưu last_id để phân trang conversations
   String? lastConversationId;
   static const int conversationsLimit = 20;
 
-  final messages = <String>[].obs;
+  // Quản lý messages
+  final messages = <MessageHistoryModel>[].obs;
+  bool hasMoreMessages = false;
 
   final messageText = ''.obs;
 
@@ -135,12 +138,23 @@ class ChatController extends BaseController {
     currentConversationId = '';
   }
 
-  /// Select conversation
-  void selectConversation(String id) {
+  /// Select conversation và load messages
+  Future<void> selectConversation(String id) async {
     selectedConversationId.value = id;
     currentConversationId = id;
     messages.clear();
-    // TODO: Load messages của conversation này
+
+    try {
+      final (messageList, hasMore) = await _chatRepository.getMessageHistory(
+        user: currentUser.value,
+        conversationId: id,
+      );
+
+      messages.value = messageList;
+      hasMoreMessages = hasMore;
+    } catch (e) {
+      showError('Không thể tải tin nhắn: ${e.toString()}');
+    }
   }
 
   void logout() {
@@ -152,13 +166,37 @@ class ChatController extends BaseController {
 
     try {
       setLoading(true);
-      messages.add("User: $text");
+      messages.add(
+        MessageHistoryModel(
+          id: '',
+          conversationId: currentConversationId,
+          inputs: {},
+          query: text,
+          answer: '',
+          messageFiles: [],
+          feedback: null,
+          retrieverResources: [],
+          createdAt: DateTime.now(),
+        ),
+      );
 
       // Cancel previous subscription if exists
       await _messageSubscription?.cancel();
 
       // Tạo message bot rỗng để hiển thị animation typing
-      messages.add("Bot: ");
+      messages.add(
+        MessageHistoryModel(
+          id: '',
+          conversationId: currentConversationId,
+          inputs: {},
+          query: '',
+          answer: '',
+          messageFiles: [],
+          feedback: null,
+          retrieverResources: [],
+          createdAt: DateTime.now(),
+        ),
+      );
       final botMessageIndex = messages.length - 1;
 
       String botResponse = '';
@@ -183,7 +221,17 @@ class ChatController extends BaseController {
                 case 'message':
                   // Cộng dồn response từ các message chunk
                   botResponse += message.content;
-                  messages[botMessageIndex] = "Bot: $botResponse";
+                  messages[botMessageIndex] = MessageHistoryModel(
+                    id: message.id,
+                    conversationId: message.conversationId ?? '',
+                    inputs: {},
+                    query: '',
+                    answer: botResponse,
+                    messageFiles: [],
+                    feedback: null,
+                    retrieverResources: [],
+                    createdAt: DateTime.now(),
+                  );
                   break;
 
                 case 'message_end':
