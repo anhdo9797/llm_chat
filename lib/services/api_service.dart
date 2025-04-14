@@ -1,16 +1,21 @@
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
+import '../core/constants/app_constants.dart';
+import 'package:llm_chat/core/constants/app_constants.dart';
 
 /// Service xử lý API requests
 class ApiService extends GetxService {
   late final dio.Dio _dio;
 
-  // Base URL của API
-  final String baseUrl = 'https://kazoku.tnmdeploy.xyz';
-  final String token = 'app-26T9waZlq3qqntMPL0w6tQve';
+  // Base URL và API Key từ constants
+  final String baseUrl = AppConstants.baseUrl;
+  late final String apiKey;
 
   /// Khởi tạo ApiService
-  Future<ApiService> init() async {
+  /// [apiKey]: API key để xác thực với server
+  Future<ApiService> init({required String apiKey}) async {
+    this.apiKey = apiKey;
+
     _dio = dio.Dio(
       dio.BaseOptions(
         baseUrl: baseUrl,
@@ -19,7 +24,7 @@ class ApiService extends GetxService {
         // Headers mặc định
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer app-26T9waZlq3qqntMPL0w6tQve',
+          'Authorization': 'Bearer $apiKey',
         },
       ),
     );

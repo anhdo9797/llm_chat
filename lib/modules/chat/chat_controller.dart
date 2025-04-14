@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:developer';
 import 'package:get/get.dart';
 import '../../core/controllers/base_controller.dart';
@@ -78,26 +77,29 @@ class ChatController extends BaseController {
             user: 'user',
           )
           .listen(
-            (chunk) {
-              try {
-                final jsonData = jsonDecode(chunk);
+            (message) {
+              // Xử lý các loại event khác nhau
+              switch (message.event) {
+                case 'workflow_started':
+                  // Lưu conversation_id khi bắt đầu workflow
+                  currentConversationId = message.conversationId ?? '';
+                  currentMessageId = message.id;
+                  break;
 
-                // Xử lý conversation_id từ workflow_started event
-                if (jsonData['event'] == 'workflow_started') {
-                  currentConversationId = jsonData['conversation_id'] as String;
-                  currentMessageId = jsonData['message_id'] as String;
-                }
-
-                // Xử lý message từ message event
-                if (jsonData['event'] == 'message') {
-                  final answer = jsonData['answer'] as String;
-                  botResponse += answer;
-
-                  // Update bot message với accumulated response
+                case 'message':
+                  // Cộng dồn response từ các message chunk
+                  botResponse += message.content;
                   messages[botMessageIndex] = "Bot: $botResponse";
-                }
-              } catch (e) {
-                print('Error parsing chunk: $e');
+                  break;
+
+                case 'message_end':
+                  // Xử lý metadata khi kết thúc response
+                  if (message.metadata?.usage != null) {
+                    final usage = message.metadata!.usage!;
+                    log('Token usage: ${usage['total_tokens']} tokens');
+                    log('Cost: ${usage['total_price']} ${usage['currency']}');
+                  }
+                  break;
               }
             },
             onError: (error) {

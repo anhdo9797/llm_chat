@@ -26,16 +26,22 @@ class ChatRepository {
     }
   }
 
-  /// Send a new message và nhận response dạng stream
+  /// Gửi tin nhắn và nhận response dạng stream
   ///
   /// [query]: Nội dung tin nhắn
-  /// [conversationId]: ID của cuộc hội thoại (optional)
-  /// [user]: Người gửi tin nhắn
-  /// Returns stream of response chunks
-  Stream<String> sendMessage({
+  /// [conversationId]: ID của cuộc hội thoại nếu là tin nhắn trong cuộc hội thoại cũ
+  /// [user]: ID người dùng gửi tin nhắn
+  /// [files]: Danh sách file đính kèm (hình ảnh, video, etc)
+  /// Returns stream of message events:
+  /// - workflow_started: Bắt đầu xử lý
+  /// - node_started/finished: Trạng thái của từng bước xử lý
+  /// - message: Chunk của câu trả lời
+  /// - message_end: Kết thúc response kèm metadata
+  Stream<MessageModel> sendMessage({
     required String query,
     String conversationId = '',
     String user = 'user',
+    List<FileAttachment>? files,
   }) {
     try {
       // Validate content
@@ -47,6 +53,7 @@ class ChatRepository {
         query: query,
         conversationId: conversationId,
         user: user,
+        files: files,
       );
     } catch (e) {
       rethrow;

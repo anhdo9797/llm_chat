@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:llm_chat/data/providers/api_provider.dart';
+import '../core/constants/app_constants.dart';
 import '../services/api_service.dart';
 import '../services/storage_service.dart';
 
@@ -11,7 +12,7 @@ class AppBinding extends Bindings {
     await Get.putAsync(() => StorageService().init());
     await Get.putAsync<ApiService>(() async {
       final service = ApiService();
-      return await service.init();
+      return await service.init(apiKey: AppConstants.apiKey);
     });
 
     // Providers

@@ -1,3 +1,5 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 /// App constants
 class AppConstants {
   // Prevent instantiation
@@ -6,8 +8,9 @@ class AppConstants {
   static const String appName = 'BuddBot';
 
   /// API Endpoints
-  static const String baseUrl = 'https://api.example.com';
-  static const String apiVersion = '/v1';
+  static String get baseUrl =>
+      dotenv.env['BASE_URL'] ?? 'https://kazoku.tnmdeploy.xyz';
+  static String get apiKey => dotenv.env['API_KEY'] ?? '';
 
   /// API Timeout
   static const int connectionTimeout = 30000; // 30 seconds
