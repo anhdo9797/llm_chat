@@ -44,9 +44,9 @@ class ChatRepository {
         conversationId: conversationId,
       );
 
-      // Sort messages by timestamp
+      // Sort messages by timestamp, oldest first
       final messages = response.data;
-      messages.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
 
       return (messages, response.hasMore);
     } catch (e) {

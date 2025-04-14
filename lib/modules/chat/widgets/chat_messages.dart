@@ -106,6 +106,40 @@ class ChatMessagesState extends State<ChatMessages> {
     );
   }
 
+  Widget _buildBotMessage(
+    BuildContext context, {
+    required String content,
+    required bool isTyping,
+    required ColorScheme colors,
+    required TextTheme textTheme,
+  }) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: CircleAvatar(
+            radius: 16,
+            backgroundColor: colors.background,
+            child: Padding(
+              padding: const EdgeInsets.all(4),
+              child: Image.asset('assets/images/logo.png'),
+            ),
+          ),
+        ),
+        _buildMessageBubble(
+          context,
+          content: content,
+          isUser: false,
+          isTyping: isTyping,
+          colors: colors,
+          textTheme: textTheme,
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
@@ -117,47 +151,45 @@ class ChatMessagesState extends State<ChatMessages> {
       itemCount: widget.messages.length,
       itemBuilder: (context, index) {
         final message = widget.messages[index];
-        final isUser = message.query.isNotEmpty;
-        final content = isUser ? message.query : message.answer;
-        final isTyping = !isUser && content.isEmpty;
+        List<Widget> messageBubbles = [];
 
-        return Align(
-          alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-          child:
-              isUser
-                  ? _buildMessageBubble(
-                    context,
-                    content: content,
-                    isUser: isUser,
-                    isTyping: isTyping,
-                    colors: colors,
-                    textTheme: textTheme,
-                  )
-                  : Row(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: CircleAvatar(
-                          radius: 16,
-                          backgroundColor: colors.background,
-                          child: Padding(
-                            padding: const EdgeInsets.all(4),
-                            child: Image.asset('assets/images/logo.png'),
-                          ),
-                        ),
-                      ),
-                      _buildMessageBubble(
-                        context,
-                        content: content,
-                        isUser: isUser,
-                        isTyping: isTyping,
-                        colors: colors,
-                        textTheme: textTheme,
-                      ),
-                    ],
-                  ),
+        // Add user query if exists
+        if (message.query.isNotEmpty) {
+          messageBubbles.add(
+            Align(
+              alignment: Alignment.centerRight,
+              child: _buildMessageBubble(
+                context,
+                content: message.query,
+                isUser: true,
+                isTyping: false,
+                colors: colors,
+                textTheme: textTheme,
+              ),
+            ),
+          );
+        }
+
+        // Add bot answer if exists or loading indicator
+        final isTyping = message.answer.isEmpty && !message.query.isNotEmpty;
+        if (message.answer.isNotEmpty || isTyping) {
+          messageBubbles.add(
+            Align(
+              alignment: Alignment.centerLeft,
+              child: _buildBotMessage(
+                context,
+                content: message.answer,
+                isTyping: isTyping,
+                colors: colors,
+                textTheme: textTheme,
+              ),
+            ),
+          );
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: messageBubbles,
         );
       },
     );
