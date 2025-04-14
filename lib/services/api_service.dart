@@ -1,8 +1,9 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import '../core/constants/app_constants.dart';
-import 'package:llm_chat/core/constants/app_constants.dart';
 
 /// Service xử lý API requests
 class ApiService extends GetxService {
@@ -25,7 +26,7 @@ class ApiService extends GetxService {
         // Headers mặc định
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $apiKey',
+          'Authorization': 'Bearer ${AppConstants.apiKey}',
         },
       ),
     );
@@ -146,26 +147,37 @@ class ApiService extends GetxService {
     dio.Options? options,
   }) async* {
     try {
-      final response = await _dio.post(
-        path,
-        data: data,
-        queryParameters: queryParameters,
-        options: dio.Options(
-          responseType: dio.ResponseType.stream,
-          headers: options?.headers,
-        ),
-      );
+      final client = http.Client();
+      var request = http.Request('POST', Uri.parse(baseUrl + path));
+
+      // Add headers
+      request.headers.addAll({
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $apiKey',
+        if (options?.headers != null) ...options!.headers!,
+      });
+
+      // Add queryParameters to URL
+      if (queryParameters != null) {
+        final updatedUrl = request.url.replace(
+          queryParameters: queryParameters.map(
+            (key, value) => MapEntry(key, value.toString()),
+          ),
+        );
+        request = http.Request('POST', updatedUrl);
+      }
+
+      // Add body
+      request.body = json.encode(data);
+
+      final response = await client.send(request);
 
       if (response.statusCode != 200) {
         throw Exception('Failed to send message');
       }
 
-      final stream = response.data.stream as Stream;
-
-      await for (var chunk in stream) {
-        final String decodedChunk = String.fromCharCodes(chunk);
-        final lines = decodedChunk.split('\n');
-
+      await for (var chunk in response.stream.transform(utf8.decoder)) {
+        final lines = chunk.split('\n');
         for (var line in lines) {
           if (line.trim().isEmpty) continue;
           if (!line.startsWith('data: ')) continue;
@@ -174,8 +186,9 @@ class ApiService extends GetxService {
           yield data;
         }
       }
-    } on dio.DioException catch (e) {
-      throw _handleError(e);
+    } catch (e) {
+      log('Stream request failed', error: e);
+      rethrow;
     }
   }
 }
