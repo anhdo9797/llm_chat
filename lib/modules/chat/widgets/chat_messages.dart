@@ -89,24 +89,29 @@ class ChatMessagesState extends State<ChatMessages> {
                       ? const TypeLoadingIndicator()
                       : isUser
                       ? Text(content, style: textTheme.bodyLarge)
-                      : MarkdownBody(
-                        data: content,
-                        styleSheet: MarkdownStyleSheet(
-                          p: textTheme.bodyLarge,
-                          code: textTheme.bodyLarge?.copyWith(
-                            fontFamily: 'monospace',
-                            backgroundColor: colors.background.withOpacity(0.3),
+                      : AnimatedSize(
+                        duration: const Duration(milliseconds: 300),
+                        child: MarkdownBody(
+                          data: content,
+                          styleSheet: MarkdownStyleSheet(
+                            p: textTheme.bodyLarge,
+                            code: textTheme.bodyLarge?.copyWith(
+                              fontFamily: 'monospace',
+                              backgroundColor: colors.background.withOpacity(
+                                0.3,
+                              ),
+                            ),
+                            blockquote: textTheme.bodyLarge?.copyWith(
+                              color: colors.textSecondary,
+                              fontStyle: FontStyle.italic,
+                            ),
+                            h1: textTheme.headlineMedium,
+                            h2: textTheme.headlineSmall,
+                            h3: textTheme.titleLarge,
+                            h4: textTheme.titleMedium,
+                            h5: textTheme.titleSmall,
+                            h6: textTheme.titleSmall,
                           ),
-                          blockquote: textTheme.bodyLarge?.copyWith(
-                            color: colors.textSecondary,
-                            fontStyle: FontStyle.italic,
-                          ),
-                          h1: textTheme.headlineMedium,
-                          h2: textTheme.headlineSmall,
-                          h3: textTheme.titleLarge,
-                          h4: textTheme.titleMedium,
-                          h5: textTheme.titleSmall,
-                          h6: textTheme.titleSmall,
                         ),
                       ),
             ),
