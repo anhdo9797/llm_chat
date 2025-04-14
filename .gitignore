@@ -84,3 +84,5 @@ app.*.map.json
 # macOS related
 **/macos/Flutter/GeneratedPluginRegistrant.swift
 **/macos/Flutter/ephemeral
+
+inferences

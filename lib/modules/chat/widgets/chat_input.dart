@@ -72,7 +72,7 @@ class ChatInput extends StatelessWidget {
                   }
                 },
                 decoration: InputDecoration(
-                  hintText: 'Type input...',
+                  hintText: 'Nhập câu hỏi...',
                   hintStyle: textTheme.bodyMedium?.copyWith(
                     color: colors.textSecondary,
                   ),

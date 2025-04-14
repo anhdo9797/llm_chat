@@ -219,18 +219,21 @@ class ChatController extends BaseController {
                   break;
 
                 case 'message':
-                  // Cộng dồn response từ các message chunk
+                  // Cập nhật ngay khi nhận được chunk mới
+                  final currentMessage = messages[botMessageIndex];
                   botResponse += message.content;
+
+                  // Clone message cũ và cập nhật answer với chunk mới
                   messages[botMessageIndex] = MessageHistoryModel(
                     id: message.id,
                     conversationId: message.conversationId ?? '',
-                    inputs: {},
-                    query: '',
+                    inputs: currentMessage.inputs,
+                    query: currentMessage.query,
                     answer: botResponse,
-                    messageFiles: [],
-                    feedback: null,
-                    retrieverResources: [],
-                    createdAt: DateTime.now(),
+                    messageFiles: currentMessage.messageFiles,
+                    feedback: currentMessage.feedback,
+                    retrieverResources: currentMessage.retrieverResources,
+                    createdAt: currentMessage.createdAt,
                   );
                   break;
 
