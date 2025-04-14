@@ -22,11 +22,13 @@ class _ChatViewState extends State<ChatView> {
   final ScrollController _mainScrollController = ScrollController();
   final ScrollController _sidebarScrollController = ScrollController();
   final GlobalKey<ChatMessagesState> _chatKey = GlobalKey();
+  final TextEditingController _messageController = TextEditingController();
 
   @override
   void dispose() {
     _mainScrollController.dispose();
     _sidebarScrollController.dispose();
+    _messageController.dispose();
     super.dispose();
   }
 
@@ -173,10 +175,12 @@ class _ChatViewState extends State<ChatView> {
                   ),
                 ),
                 ChatInput(
+                  controller: _messageController,
                   onChanged: (text) => controller.messageText.value = text,
-                  onSend:
-                      () =>
-                          controller.sendMessage(controller.messageText.value),
+                  onSend: () {
+                    controller.sendMessage(_messageController.text);
+                    _messageController.clear();
+                  },
                   isLoading: controller.isLoading,
                 ),
               ],

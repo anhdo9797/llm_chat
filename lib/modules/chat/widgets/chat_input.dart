@@ -65,6 +65,12 @@ class ChatInput extends StatelessWidget {
                 onChanged: onChanged,
                 style: textTheme.bodyMedium,
                 maxLines: 1,
+                onSubmitted: (text) {
+                  if (onSend != null) {
+                    onSend!();
+                    controller?.clear();
+                  }
+                },
                 decoration: InputDecoration(
                   hintText: 'Type input...',
                   hintStyle: textTheme.bodyMedium?.copyWith(

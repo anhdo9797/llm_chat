@@ -67,17 +67,22 @@ class ChatMessagesState extends State<ChatMessages> {
 
         return Align(
           alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 10),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: BoxDecoration(
-              color:
-                  isUser ? colors.messageBubbleUser : colors.messageBubbleBot,
-              borderRadius: BorderRadius.circular(12),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.7,
             ),
-            child: Text(
-              message.substring(message.indexOf(':') + 2),
-              style: textTheme.bodyLarge,
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color:
+                    isUser ? colors.messageBubbleUser : colors.messageBubbleBot,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                message.substring(message.indexOf(':') + 2),
+                style: textTheme.bodyLarge,
+              ),
             ),
           ),
         );
