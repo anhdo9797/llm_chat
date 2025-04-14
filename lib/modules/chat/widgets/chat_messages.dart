@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import '../../../core/extensions/color_extension.dart';
+import 'type_loading_indicator.dart';
 
 class ChatMessages extends StatefulWidget {
   final List<String> messages;
@@ -86,6 +87,8 @@ class ChatMessagesState extends State<ChatMessages> {
                         message.substring(message.indexOf(':') + 2),
                         style: textTheme.bodyLarge,
                       )
+                      : message == "Bot: "
+                      ? const TypeLoadingIndicator()
                       : MarkdownBody(
                         data: message.substring(message.indexOf(':') + 2),
                         styleSheet: MarkdownStyleSheet(
