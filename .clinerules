@@ -1,0 +1,114 @@
+# Project Guidelines
+
+## Documentation Requirements
+
+-   Update relevant documentation in /docs when modifying features
+-   Keep README.md in sync with new capabilities
+-   Maintain changelog entries in CHANGELOG.md
+
+## Folder Structure
+
+lib/
+├── core/
+│   ├── constants/
+│   │   ├── app_constants.dart        # App-wide constants (API URLs, sizes, keys)
+│   │   └── error_constants.dart      # Error messages
+│   │
+│   ├── extensions/
+│   │   ├── color_extension.dart      # Color scheme extensions
+│   │   ├── style_extension.dart      # Text style extensions
+│   │   └── date_time_extension.dart  # DateTime utilities
+│   │
+│   ├── controllers/
+│   │   └── base_controller.dart      # Base controller with common functions
+│   │
+│   └── theme/
+│       └── app_theme.dart           # Theme configuration
+│
+├── data/
+│   ├── models/
+│   │   └── message_model.dart       # Data models with JSON serialization
+│   │
+│   ├── providers/
+│   │   └── api_provider.dart        # API call handlers
+│   │
+│   └── repositories/
+│       └── chat_repository.dart     # Business logic layer
+│
+├── modules/
+│   └── chat/
+│       ├── chat_binding.dart        # Dependencies injection
+│       ├── chat_controller.dart     # Module business logic
+│       ├── chat_view.dart          # Main view
+│       └── widgets/                 # Module-specific widgets
+│           ├── button_with_hover.dart
+│           ├── chat_input.dart
+│           ├── chat_history_item.dart
+│           ├── chat_messages.dart
+│           ├── example_card.dart
+│           ├── icon_button_with_hover.dart
+│           ├── sidebar_option.dart
+│           └── welcome_view.dart
+│
+├── services/
+│   ├── api_service.dart            # Dio HTTP client setup
+│   └── storage_service.dart        # SharedPreferences wrapper
+│
+├── app/
+│   └── app_binding.dart           # Global dependencies
+│
+├── routes/
+│   ├── app_pages.dart             # Route definitions
+│   └── app_routes.dart           # Route names
+│
+└── main.dart                     # App entry point
+
+## Code Style & Patterns
+
+### General
+- Use meaningful names for variables, functions, and classes
+- Avoid deep nesting of code blocks
+- Keep functions small and focused
+- Maximum lines per file: 500
+- Add comments for complex logic
+
+### Widgets
+- Prefer StatelessWidget when possible
+- Name pattern: <Name>Widget (e.g. ButtonWidget)
+- Extract reusable widgets into separate files
+- Follow single responsibility principle
+
+### UI Components
+- Use context.colors for accessing theme colors
+- Use context.textTheme for text styles
+- Follow spacing guidelines (using context.spacing)
+- Implement proper hover states for interactive elements
+- Keep consistent border radius (using context.radius)
+
+### Controllers
+- Extend base_controller for common functionality 
+- Keep business logic separate from UI
+- Use dependency injection via bindings
+- Handle loading states properly
+
+### State Management
+- Use GetX for state management
+- Keep state changes in controllers
+- Use .obs for observable variables
+- Use Obx for reactive widgets
+
+### Theme
+- Define colors in ColorScheme
+- Use semantic color names
+- Support both light and dark themes
+- Use consistent spacing values
+
+### Assets
+- Place images in assets/images/
+- Place fonts in assets/fonts/
+- Place icons in assets/icons/
+
+### Testing
+- Write unit tests for business logic
+- Write widget tests for UI components
+- Write integration tests for full features
