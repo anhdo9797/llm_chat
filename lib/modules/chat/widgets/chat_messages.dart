@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import '../../../core/extensions/color_extension.dart';
 
 class ChatMessages extends StatefulWidget {
@@ -69,7 +70,7 @@ class ChatMessagesState extends State<ChatMessages> {
           alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width * 0.7,
+              maxWidth: MediaQuery.of(context).size.width * 0.6,
             ),
             child: Container(
               margin: const EdgeInsets.only(bottom: 10),
@@ -79,10 +80,32 @@ class ChatMessagesState extends State<ChatMessages> {
                     isUser ? colors.messageBubbleUser : colors.messageBubbleBot,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Text(
-                message.substring(message.indexOf(':') + 2),
-                style: textTheme.bodyLarge,
-              ),
+              child:
+                  isUser
+                      ? Text(
+                        message.substring(message.indexOf(':') + 2),
+                        style: textTheme.bodyLarge,
+                      )
+                      : MarkdownBody(
+                        data: message.substring(message.indexOf(':') + 2),
+                        styleSheet: MarkdownStyleSheet(
+                          p: textTheme.bodyLarge,
+                          code: textTheme.bodyLarge?.copyWith(
+                            fontFamily: 'monospace',
+                            backgroundColor: colors.background.withOpacity(0.3),
+                          ),
+                          blockquote: textTheme.bodyLarge?.copyWith(
+                            color: colors.textSecondary,
+                            fontStyle: FontStyle.italic,
+                          ),
+                          h1: textTheme.headlineMedium,
+                          h2: textTheme.headlineSmall,
+                          h3: textTheme.titleLarge,
+                          h4: textTheme.titleMedium,
+                          h5: textTheme.titleSmall,
+                          h6: textTheme.titleSmall,
+                        ),
+                      ),
             ),
           ),
         );
