@@ -98,30 +98,23 @@ class _ChatViewState extends State<ChatView> {
             ),
             child: Column(
               children: [
-                SidebarOption(
-                  icon: Icons.delete_outline,
-                  label: 'Clear conversations',
-                  onTap: () => controller.clearConversations(),
-                ),
-                SidebarOption(
-                  icon: Icons.light_mode_outlined,
-                  label: 'Light mode',
-                  onTap: () => Get.changeThemeMode(ThemeMode.light),
+                Obx(
+                  () => SidebarOption(
+                    icon:
+                        controller.isDarkMode.value
+                            ? Icons.dark_mode_outlined
+                            : Icons.light_mode_outlined,
+                    label:
+                        controller.isDarkMode.value
+                            ? 'Dark mode'
+                            : 'Light mode',
+                    onTap: () => controller.toggleThemeMode(),
+                  ),
                 ),
                 SidebarOption(
                   icon: Icons.person_outline,
                   label: 'My account',
-                  onTap: () {},
-                ),
-                SidebarOption(
-                  icon: Icons.help_outline,
-                  label: 'Updates & FAQ',
-                  onTap: () {},
-                ),
-                SidebarOption(
-                  icon: Icons.logout,
-                  label: 'Log out',
-                  onTap: () => controller.logout(),
+                  onTap: () => controller.showUserDialog(context),
                 ),
               ],
             ),

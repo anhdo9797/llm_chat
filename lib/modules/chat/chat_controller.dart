@@ -1,17 +1,35 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/controllers/base_controller.dart';
 import '../../data/repositories/chat_repository.dart';
+import '../../services/storage_service.dart';
 
 class ChatController extends BaseController {
   final ChatRepository _chatRepository;
+  final StorageService _storageService = Get.find<StorageService>();
   String currentConversationId = '';
   String currentMessageId = '';
   StreamSubscription? _messageSubscription;
 
+  // State quản lý dark/light mode
+  final isDarkMode = false.obs;
+
+  // State quản lý current user
+  final currentUser = RxString('');
+
   ChatController({required ChatRepository chatRepository})
-    : _chatRepository = chatRepository;
+    : _chatRepository = chatRepository {
+    // Load theme mode từ storage
+    isDarkMode.value = Get.isDarkMode;
+
+    // Load user từ storage
+    final savedUser = _storageService.getString(StorageService.keyUser);
+    if (savedUser != null) {
+      currentUser.value = savedUser;
+    }
+  }
   final chatHistory =
       <String>[
         'AI Chat Tool Ethics',
@@ -29,6 +47,53 @@ class ChatController extends BaseController {
   void onInit() {
     log('ChatController initialized');
     super.onInit();
+  }
+
+  /// Toggle theme mode
+  void toggleThemeMode() {
+    isDarkMode.value = !isDarkMode.value;
+    Get.changeThemeMode(isDarkMode.value ? ThemeMode.dark : ThemeMode.light);
+  }
+
+  /// Show dialog nhập username
+  void showUserDialog(BuildContext context) {
+    final TextEditingController userController = TextEditingController(
+      text: currentUser.value,
+    );
+
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text('Nhập tên người dùng'),
+            content: TextField(
+              controller: userController,
+              decoration: InputDecoration(
+                hintText: 'Nhập tên của bạn',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            actions: [
+              TextButton(
+                child: Text('Hủy'),
+                onPressed: () => Navigator.pop(context),
+              ),
+              TextButton(
+                child: Text('Lưu'),
+                onPressed: () {
+                  if (userController.text.trim().isNotEmpty) {
+                    currentUser.value = userController.text.trim();
+                    _storageService.setString(
+                      StorageService.keyUser,
+                      currentUser.value,
+                    );
+                    Navigator.pop(context);
+                  }
+                },
+              ),
+            ],
+          ),
+    );
   }
 
   /// Create new chat
@@ -74,7 +139,7 @@ class ChatController extends BaseController {
           .sendMessage(
             query: text,
             conversationId: currentConversationId,
-            user: 'user',
+            user: currentUser.value.isEmpty ? 'user' : currentUser.value,
           )
           .listen(
             (message) {
