@@ -25,6 +25,17 @@ class _ChatViewState extends State<ChatView> {
   final TextEditingController _messageController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    // Kiểm tra username khi component được khởi tạo
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (controller.currentUser.value.isEmpty) {
+        controller.showUserDialog(context);
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _mainScrollController.dispose();
     _sidebarScrollController.dispose();
