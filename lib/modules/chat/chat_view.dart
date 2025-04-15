@@ -185,6 +185,7 @@ class _ChatViewState extends State<ChatView> {
                   onSend: () {
                     controller.sendMessage(_messageController.text);
                     _messageController.clear();
+                    _scrollToBottom(); // Thêm scroll to bottom sau khi send
                   },
                   isLoading: controller.isLoading,
                 ),
