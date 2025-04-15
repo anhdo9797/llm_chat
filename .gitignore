@@ -33,7 +33,7 @@
 .pub-cache/
 .pub/
 /build/
-
+!build/web/
 # FVM Version Cache
 .fvm/
 
