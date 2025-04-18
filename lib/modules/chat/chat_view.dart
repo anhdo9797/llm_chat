@@ -9,6 +9,8 @@ import 'widgets/chat_messages.dart';
 import 'widgets/icon_button_with_hover.dart';
 import 'widgets/sidebar_option.dart';
 import 'widgets/welcome_view.dart';
+import 'widgets/document_links_dialog.dart';
+import 'package:flutter/services.dart'; // Đọc file từ assets cho web/mobile
 
 class ChatView extends StatefulWidget {
   const ChatView({super.key});
@@ -122,6 +124,35 @@ class _ChatViewState extends State<ChatView> {
                             : 'Light mode',
                     onTap: () => controller.toggleThemeMode(),
                   ),
+                ),
+                SidebarOption(
+                  icon: Icons.book_outlined,
+                  label: 'Tài liệu',
+                  onTap: () async {
+                    // Đọc file log.md từ assets (hỗ trợ web/mobile)
+                    final content = await rootBundle.loadString('log.md');
+                    final lines = content.split('\n');
+                    // Lọc các dòng chứa link (bắt đầu bằng '- [')
+                    final links =
+                        lines
+                            .where((line) => line.contains('https://'))
+                            .map((line) {
+                              final match = RegExp(
+                                r'(https?://[^\s\]]+)',
+                              ).firstMatch(line);
+                              return match != null ? match.group(1)! : '';
+                            })
+                            .where((url) => url.isNotEmpty)
+                            .toSet()
+                            .toList();
+                    // Hiển thị popup danh sách link
+                    if (context.mounted) {
+                      showDialog(
+                        context: context,
+                        builder: (_) => DocumentLinksDialog(links: links),
+                      );
+                    }
+                  },
                 ),
                 SidebarOption(
                   icon: Icons.person_outline,
