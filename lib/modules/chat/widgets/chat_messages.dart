@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter/services.dart';
 import '../../../core/extensions/color_extension.dart';
 import '../../../data/models/message_history_model.dart';
 import 'type_loading_indicator.dart';
@@ -78,28 +79,55 @@ class ChatMessagesState extends State<ChatMessages> {
             isTyping
                 ? const TypeLoadingIndicator()
                 : isUser
-                ? Text(content, style: textTheme.bodyLarge)
+                ? SelectableText(content, style: textTheme.bodyLarge)
                 : AnimatedSize(
                   duration: const Duration(milliseconds: 100),
-                  child: MarkdownBody(
-                    data: content,
-                    styleSheet: MarkdownStyleSheet(
-                      p: textTheme.bodyLarge,
-                      code: textTheme.bodyLarge?.copyWith(
-                        fontFamily: 'monospace',
-                        backgroundColor: colors.background.withOpacity(0.3),
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          bottom: 32,
+                        ), // chừa chỗ cho nút copy
+                        child: MarkdownBody(
+                          data: content,
+                          styleSheet: MarkdownStyleSheet(
+                            p: textTheme.bodyLarge,
+                            code: textTheme.bodyLarge?.copyWith(
+                              fontFamily: 'monospace',
+                              backgroundColor: colors.background.withOpacity(
+                                0.3,
+                              ),
+                            ),
+                            blockquote: textTheme.bodyLarge?.copyWith(
+                              color: colors.textSecondary,
+                              fontStyle: FontStyle.italic,
+                            ),
+                            h1: textTheme.headlineMedium,
+                            h2: textTheme.headlineSmall,
+                            h3: textTheme.titleLarge,
+                            h4: textTheme.titleMedium,
+                            h5: textTheme.titleSmall,
+                            h6: textTheme.titleSmall,
+                          ),
+                        ),
                       ),
-                      blockquote: textTheme.bodyLarge?.copyWith(
-                        color: colors.textSecondary,
-                        fontStyle: FontStyle.italic,
+                      Positioned(
+                        right: 0,
+                        bottom: 0,
+                        child: IconButton(
+                          icon: const Icon(Icons.copy, size: 20),
+                          tooltip: 'Sao chép nội dung',
+                          onPressed: () {
+                            Clipboard.setData(ClipboardData(text: content));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Đã sao chép nội dung!'),
+                              ),
+                            );
+                          },
+                        ),
                       ),
-                      h1: textTheme.headlineMedium,
-                      h2: textTheme.headlineSmall,
-                      h3: textTheme.titleLarge,
-                      h4: textTheme.titleMedium,
-                      h5: textTheme.titleSmall,
-                      h6: textTheme.titleSmall,
-                    ),
+                    ],
                   ),
                 ),
       ),
