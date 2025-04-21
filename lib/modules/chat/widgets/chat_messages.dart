@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter/services.dart';
@@ -90,6 +92,9 @@ class ChatMessagesState extends State<ChatMessages> {
                         ), // chừa chỗ cho nút copy
                         child: MarkdownBody(
                           data: content,
+                          selectable: true,
+                          shrinkWrap: true,
+
                           styleSheet: MarkdownStyleSheet(
                             p: textTheme.bodyLarge,
                             code: textTheme.bodyLarge?.copyWith(
@@ -115,7 +120,7 @@ class ChatMessagesState extends State<ChatMessages> {
                         right: 0,
                         bottom: 0,
                         child: IconButton(
-                          icon: const Icon(Icons.copy, size: 20),
+                          icon: const Icon(Icons.copy, size: 16),
                           tooltip: 'Sao chép nội dung',
                           onPressed: () {
                             Clipboard.setData(ClipboardData(text: content));
